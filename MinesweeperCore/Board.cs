@@ -11,6 +11,8 @@ public class Board
     private readonly int _nrOfRows;
     private readonly int _nrOfColumns;
     private readonly Tile[,] _tileGrid;
+
+    private int _nrOfSafeHiddenTilesLeft;
     
     public Board(
         int nrOfRows,
@@ -22,8 +24,16 @@ public class Board
         
         _nrOfRows = nrOfRows;
         _nrOfColumns = nrOfColumns;
+        _nrOfSafeHiddenTilesLeft = nrOfRows * nrOfColumns - bombCoordinates.Count;
 
         _tileGrid = ConstructTileGrid(bombCoordinates);
+
+        RegisterAllCallbacks();
+    }
+
+    ~Board()
+    {
+        UnregisterAllCallbacks();
     }
 
     public int GetNrOfRows()
@@ -79,6 +89,16 @@ public class Board
         return coordinate.GetAllAdjacentCoordinates().Where(CoordinateIsWithinGrid);
     }
 
+    private void OnTileRevealedForTheFirstTime(ITileInfo newlyRevealedTileInfo)
+    {
+        if (newlyRevealedTileInfo.IsBomb())
+        {
+            return;
+        }
+
+        _nrOfSafeHiddenTilesLeft -= 1;
+    }
+
     private Tile[,] ConstructTileGrid(IReadOnlyList<Coordinate> bombCoordinates)
     {
         var tileGrid = new Tile[_nrOfRows, _nrOfColumns];
@@ -116,5 +136,25 @@ public class Board
         return tileGrid;
     }
 
+    private void RegisterAllCallbacks()
+    {
+        for (var row = 0; row < _nrOfRows; row += 1)
+        {
+            for (var column = 0; column < _nrOfColumns; column += 1)
+            {
+                _tileGrid[row, column].RevealedForTheFirstTime += OnTileRevealedForTheFirstTime;
+            }
+        }
+    }
+
+    private void UnregisterAllCallbacks()
+    {
+        for (var row = 0; row < _nrOfRows; row += 1)
+        {
+            for (var column = 0; column < _nrOfColumns; column += 1)
+            {
+                _tileGrid[row, column].RevealedForTheFirstTime -= OnTileRevealedForTheFirstTime;
+            }
+        }
     }
 }

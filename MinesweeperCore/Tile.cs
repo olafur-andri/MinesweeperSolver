@@ -6,6 +6,10 @@
 /// </summary>
 public class Tile : ITileInfo
 {
+    public delegate void RevealedForTheFirstTimeHandler(ITileInfo newlyRevealedTileInfo);
+    /// <summary>Invoked when this tile is revealed for the first time</summary>
+    public event RevealedForTheFirstTimeHandler? RevealedForTheFirstTime;
+    
     private readonly int _nrOfAdjacentBombs;
     private readonly bool _isBomb;
 
@@ -35,11 +39,15 @@ public class Tile : ITileInfo
     }
     
     /// <summary>Reveals this tile</summary>
-    /// <returns><c>true</c> if this tile is safe to reveal, otherwise <c>false</c></returns>
-    public bool Reveal()
+    public void Reveal()
     {
+        var wasHidden = !_isRevealed;
+        
         _isRevealed = true;
 
-        return !_isBomb;
+        if (wasHidden)
+        {
+            RevealedForTheFirstTime?.Invoke(this);
+        }
     }
 }
