@@ -179,6 +179,11 @@ public class DrawableBoard : IDrawable
             return tileIsSelected ? ConsoleColor.DarkGray : null;
         }
 
+        if (extendedTileInfo.IsFlagged())
+        {
+            return tileIsSelected ? ConsoleColor.Cyan : ConsoleColor.DarkCyan;
+        }
+        
         return tileIsSelected ? ConsoleColor.Blue : ConsoleColor.DarkBlue;
     }
 
