@@ -76,19 +76,7 @@ public class ExtendedBoard
 
     public void RevealTile(Coordinate coordinate)
     {
-        var (row, column) = coordinate;
-
-        if (_tileIsFlagged[row, column])
-        {
-            return;
-        }
-
         var coreTileInfo = _coreBoard.GetTileInfo(coordinate);
-
-        if (coreTileInfo.IsRevealed())
-        {
-            return;
-        }
 
         var revealStatus = _coreBoard.RevealTile(coordinate);
         
@@ -106,13 +94,31 @@ public class ExtendedBoard
             return;
         }
 
-        if (coreTileInfo.GetNrOfAdjacentBombs() > 0)
+        var nrOfAdjacentFlags = CountNrOfAdjacentFlags(coordinate);
+        
+        if (nrOfAdjacentFlags < coreTileInfo.GetNrOfAdjacentBombs())
         {
             return;
         }
         
         foreach (var adjacentCoordinate in _coreBoard.GetAdjacentCoordinatesWithinGrid(coordinate))
         {
+            var adjacentTileIsFlagged =
+                _tileIsFlagged[adjacentCoordinate.Row, adjacentCoordinate.Column];
+
+            if (adjacentTileIsFlagged)
+            {
+                continue;
+            }
+
+            var adjacentTileIsRevealed =
+                _coreBoard.GetTileInfo(adjacentCoordinate).IsRevealed();
+
+            if (adjacentTileIsRevealed)
+            {
+                continue;
+            }
+            
             RevealTile(adjacentCoordinate);
         }
     }
@@ -130,5 +136,13 @@ public class ExtendedBoard
     public bool CoordinateIsWithinGrid(Coordinate coordinate)
     {
         return _coreBoard.CoordinateIsWithinGrid(coordinate);
+    }
+
+    private int CountNrOfAdjacentFlags(Coordinate coordinate)
+    {
+        return _coreBoard
+            .GetAdjacentCoordinatesWithinGrid(coordinate)
+            .Count(currentCoordinate =>
+                _tileIsFlagged[currentCoordinate.Row, currentCoordinate.Column]);
     }
 }
