@@ -76,8 +76,14 @@ public class ExtendedBoard
 
     public void RevealTile(Coordinate coordinate)
     {
-        var coreTileInfo = _coreBoard.GetTileInfo(coordinate);
+        var tileInfo = GetExtendedTileInfo(coordinate);
+        var tileWasAlreadyRevealed = tileInfo.IsRevealed();
 
+        if (tileInfo.IsFlagged())
+        {
+            return;
+        }
+        
         var revealStatus = _coreBoard.RevealTile(coordinate);
         
         TileUpdated?.Invoke(coordinate);
@@ -94,11 +100,22 @@ public class ExtendedBoard
             return;
         }
 
-        var nrOfAdjacentFlags = CountNrOfAdjacentFlags(coordinate);
-        
-        if (nrOfAdjacentFlags < coreTileInfo.GetNrOfAdjacentBombs())
+        // decide whether or not to flood-fill
+        if (tileWasAlreadyRevealed)
         {
-            return;
+            var nrOfAdjacentFlags = CountNrOfAdjacentFlags(coordinate);
+        
+            if (nrOfAdjacentFlags < tileInfo.GetNrOfAdjacentBombs())
+            {
+                return;
+            }
+        }
+        else
+        {
+            if (tileInfo.GetNrOfAdjacentBombs() > 0)
+            {
+                return;
+            }
         }
         
         foreach (var adjacentCoordinate in _coreBoard.GetAdjacentCoordinatesWithinGrid(coordinate))
