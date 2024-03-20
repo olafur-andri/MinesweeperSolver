@@ -78,8 +78,17 @@ public class StartingScreen
     
     private void OnRegularMinesweeperGameChosen()
     {
-        var board = 
-            new Board(nrOfRows: 10, nrOfColumns: 10, bombCoordinates: Array.Empty<Coordinate>());
+        const int nrOfRows = 10;
+        const int nrOfColumns = 10;
+        const int nrOfBombs = 20;
+        const int seed = 420;
+        
+        var board = Board.CreateRandom(
+            nrOfRows: nrOfRows,
+            nrOfColumns: nrOfColumns,
+            nrOfBombs: nrOfBombs,
+            seed: seed);
+        
         var minesweeperGameScreen = new MinesweeperGameScreen(board);
         
         minesweeperGameScreen.Open();

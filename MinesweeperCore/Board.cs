@@ -21,6 +21,7 @@ public class Board
     {
         Debug.Assert(nrOfRows >= 0, "Nr. of rows must be a nonnegative integer");
         Debug.Assert(nrOfColumns >= 0, "Nr. of columns must be a nonnegative integer");
+        Debug.Assert(bombCoordinates.Distinct().Count() == bombCoordinates.Count, "All bomb coordinates must be distinct");
         
         _nrOfRows = nrOfRows;
         _nrOfColumns = nrOfColumns;
@@ -34,6 +35,21 @@ public class Board
     ~Board()
     {
         UnregisterAllCallbacks();
+    }
+
+    public static Board CreateRandom(int nrOfRows, int nrOfColumns, int nrOfBombs, int seed)
+    {
+        var allCoordinates = Coordinate.Range(nrOfRows, nrOfColumns);
+        
+        var bombCoordinates = RandomizationUtils
+            .FisherYatesShuffle(allCoordinates, seed)
+            .Take(nrOfBombs)
+            .ToList();
+
+        return new Board(
+            nrOfRows: nrOfRows,
+            nrOfColumns: nrOfColumns,
+            bombCoordinates: bombCoordinates);
     }
 
     public int GetNrOfRows()
