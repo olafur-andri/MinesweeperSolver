@@ -83,23 +83,37 @@ public class ExtendedBoard
             return;
         }
 
-        var boardRevealResult = _coreBoard.RevealTile(coordinate);
+        var coreTileInfo = _coreBoard.GetTileInfo(coordinate);
 
-        if (boardRevealResult.Status == BoardRevealStatus.Failure)
+        if (coreTileInfo.IsRevealed())
+        {
+            return;
+        }
+
+        var revealStatus = _coreBoard.RevealTile(coordinate);
+        
+        TileUpdated?.Invoke(coordinate);
+
+        if (revealStatus == BoardRevealStatus.Failure)
         {
             PlayerLost?.Invoke();
             return;
         }
-        
-        if (boardRevealResult.Status == BoardRevealStatus.Victory)
+
+        if (revealStatus == BoardRevealStatus.Victory)
         {
             PlayerWon?.Invoke();
             return;
         }
 
-        foreach (var updatedTileCoordinate in boardRevealResult.RevealedTileCoordinates)
+        if (coreTileInfo.GetNrOfAdjacentBombs() > 0)
         {
-            TileUpdated?.Invoke(updatedTileCoordinate);
+            return;
+        }
+        
+        foreach (var adjacentCoordinate in _coreBoard.GetAdjacentCoordinatesWithinGrid(coordinate))
+        {
+            RevealTile(adjacentCoordinate);
         }
     }
 

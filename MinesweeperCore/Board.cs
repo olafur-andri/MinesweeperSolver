@@ -10,7 +10,6 @@ public class Board
 {
     private readonly int _nrOfRows;
     private readonly int _nrOfColumns;
-        
     private readonly Tile[,] _tileGrid;
     
     public Board(
@@ -42,37 +41,23 @@ public class Board
         return _tileGrid[coordinate.Row, coordinate.Column];
     }
 
-    public BoardRevealResult RevealTile(Coordinate coordinate)
+    public BoardRevealStatus RevealTile(Coordinate coordinate)
     {
         var tile = _tileGrid[coordinate.Row, coordinate.Column];
 
-        if (tile.IsRevealed())
+        tile.Reveal();
+
+        if (tile.IsBomb())
         {
-            return new BoardRevealResult(
-                status: BoardRevealStatus.Success,
-                revealedTileCoordinates: Array.Empty<Coordinate>());
+            return BoardRevealStatus.Failure;
         }
 
-        var revealWasSuccessful = tile.Reveal();
-
-        if (!revealWasSuccessful)
+        if (_nrOfSafeHiddenTilesLeft == 0)
         {
-            return new BoardRevealResult(
-                status: BoardRevealStatus.Failure,
-                revealedTileCoordinates: new List<Coordinate> { coordinate });
+            return BoardRevealStatus.Victory;
         }
 
-        var aggregatedRevealedTileCoordinates = new List<Coordinate> { coordinate };
-        
-        foreach (var adjacentCoordinate in GetAdjacentCoordinatesWithinGrid(coordinate))
-        {
-            var revealResult = RevealTile(adjacentCoordinate);
-            aggregatedRevealedTileCoordinates.AddRange(revealResult.RevealedTileCoordinates);
-        }
-
-        return new BoardRevealResult(
-            status: BoardRevealStatus.Success,
-            revealedTileCoordinates: aggregatedRevealedTileCoordinates);
+        return BoardRevealStatus.Success;
     }
     
     public bool CoordinateIsWithinGrid(Coordinate coordinate)
@@ -87,6 +72,11 @@ public class Board
         var columnIsWithinGrid = coordinate.Column >= 0 && coordinate.Column < _nrOfColumns;
 
         return columnIsWithinGrid;
+    }
+    
+    public IEnumerable<Coordinate> GetAdjacentCoordinatesWithinGrid(Coordinate coordinate)
+    {
+        return coordinate.GetAllAdjacentCoordinates().Where(CoordinateIsWithinGrid);
     }
 
     private Tile[,] ConstructTileGrid(IReadOnlyList<Coordinate> bombCoordinates)
@@ -126,8 +116,5 @@ public class Board
         return tileGrid;
     }
 
-    private IReadOnlyList<Coordinate> GetAdjacentCoordinatesWithinGrid(Coordinate coordinate)
-    {
-        return coordinate.GetAllAdjacentCoordinates().Where(CoordinateIsWithinGrid).ToList();
     }
 }
