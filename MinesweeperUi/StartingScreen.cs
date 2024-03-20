@@ -80,7 +80,7 @@ public class StartingScreen
     {
         const int nrOfRows = 10;
         const int nrOfColumns = 10;
-        const int nrOfBombs = 20;
+        const int nrOfBombs = 10;
         const int seed = 420;
         
         var board = Board.CreateRandom(
