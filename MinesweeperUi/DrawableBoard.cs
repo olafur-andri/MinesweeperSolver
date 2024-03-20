@@ -151,34 +151,74 @@ public class DrawableBoard : IDrawable
         ExtendedTileInfo extendedTileInfo,
         Coordinate cursorCoordinate)
     {
-        string content;
-        ConsoleColor? foregroundColor;
-        ConsoleColor? backgroundColor;
-        
-        var nrOfAdjacentBombs = extendedTileInfo.GetNrOfAdjacentBombs();
         var tileIsSelected = tileCoordinate == cursorCoordinate;
 
-        if (extendedTileInfo.IsRevealed())
-        {
-            content = nrOfAdjacentBombs == 0 ? " " : nrOfAdjacentBombs.ToString();
-            foregroundColor = null;
-            backgroundColor = tileIsSelected ? ConsoleColor.DarkGray : null;
-        }
-        else
-        {
-            content = extendedTileInfo.IsFlagged()
-                ? "X"
-                : extendedTileInfo.IsHypothesized()
-                    ? "?"
-                    : " ";
-            foregroundColor = ConsoleColor.Black;
-            backgroundColor = tileIsSelected ? ConsoleColor.Blue : ConsoleColor.DarkBlue;
-        }
+        var content = DeriveTileContentFrom(extendedTileInfo);
+        var foregroundColor = DeriveForegroundColorFrom(extendedTileInfo);
+        var backgroundColor =
+            DeriveBackgroundColorFrom(extendedTileInfo, tileIsSelected);
 
         return new DrawUnit(
             Content: content,
             LocalCoordinate: tileCoordinate.Add(new Coordinate(1, 1)),
             BackgroundColor: backgroundColor,
             ForegroundColor: foregroundColor);
+    }
+
+    private static ConsoleColor? DeriveBackgroundColorFrom(
+        ExtendedTileInfo extendedTileInfo,
+        bool tileIsSelected)
+    {
+        if (extendedTileInfo.IsRevealed())
+        {
+            if (extendedTileInfo.IsBomb())
+            {
+                return tileIsSelected ? ConsoleColor.Red : ConsoleColor.DarkRed;
+            }
+            
+            return tileIsSelected ? ConsoleColor.DarkGray : null;
+        }
+
+        return tileIsSelected ? ConsoleColor.Blue : ConsoleColor.DarkBlue;
+    }
+
+    private static ConsoleColor? DeriveForegroundColorFrom(ExtendedTileInfo extendedTileInfo)
+    {
+        if (extendedTileInfo.IsRevealed())
+        {
+            return extendedTileInfo.IsBomb() ? ConsoleColor.Black : null;
+        }
+
+        return ConsoleColor.Black;
+    }
+    
+    private static string DeriveTileContentFrom(ExtendedTileInfo extendedTileInfo)
+    {
+        if (extendedTileInfo.IsRevealed())
+        {
+            if (extendedTileInfo.IsBomb())
+            {
+                return "*";
+            }
+                
+            if (extendedTileInfo.GetNrOfAdjacentBombs() == 0)
+            {
+                return " ";
+            }
+                
+            return extendedTileInfo.GetNrOfAdjacentBombs().ToString();
+        }
+
+        if (extendedTileInfo.IsFlagged())
+        {
+            return "X";
+        }
+
+        if (extendedTileInfo.IsHypothesized())
+        {
+            return "?";
+        }
+
+        return " ";
     }
 }
