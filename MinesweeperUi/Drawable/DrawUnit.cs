@@ -23,6 +23,7 @@ public record DrawUnit(
     /// every resulting <see cref="DrawUnit"/>
     /// </summary>
     public static IReadOnlyList<DrawUnit> FromString(
+        Coordinate localTopLeftCoordinate,
         string @string,
         ConsoleColor? backgroundColor,
         ConsoleColor? foregroundColor)
@@ -37,9 +38,12 @@ public record DrawUnit(
 
             for (var localColumn = 0; localColumn < currentLine.Length; localColumn += 1)
             {
+                var localCoordinate =
+                    localTopLeftCoordinate.Add(new Coordinate(localRow, localColumn));
+                
                 drawUnits.Add(new DrawUnit(
                     Content: currentLine[localColumn].ToString(),
-                    LocalCoordinate: new Coordinate(localRow, localColumn),
+                    LocalCoordinate: localCoordinate,
                     BackgroundColor: backgroundColor,
                     ForegroundColor: foregroundColor));
             }

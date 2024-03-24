@@ -32,21 +32,21 @@ public readonly record struct Coordinate(int Row, int Column)
     }
     
     /// <summary>
-    /// Returns the resulting coordinate if this coordinate were to take one step in the given
-    /// <paramref name="direction"/>
+    /// Returns the resulting coordinate if this coordinate were to take the given
+    /// <paramref name="nrOfSteps"/> steps in the given <paramref name="direction"/>
     /// </summary>
-    public Coordinate Step(Direction direction)
+    public Coordinate Step(Direction direction, int nrOfSteps = 1)
     {
         return direction switch
         {
-            Direction.North => new Coordinate(Row - 1, Column),
-            Direction.Northwest => new Coordinate(Row - 1, Column - 1),
-            Direction.West => new Coordinate(Row, Column - 1),
-            Direction.Southwest => new Coordinate(Row + 1, Column - 1),
-            Direction.South => new Coordinate(Row + 1, Column),
-            Direction.Southeast => new Coordinate(Row + 1, Column + 1),
-            Direction.East => new Coordinate(Row, Column + 1),
-            Direction.Northeast => new Coordinate(Row - 1, Column + 1),
+            Direction.North => new Coordinate(Row - nrOfSteps, Column),
+            Direction.Northwest => new Coordinate(Row - nrOfSteps, Column - nrOfSteps),
+            Direction.West => new Coordinate(Row, Column - nrOfSteps),
+            Direction.Southwest => new Coordinate(Row + nrOfSteps, Column - nrOfSteps),
+            Direction.South => new Coordinate(Row + nrOfSteps, Column),
+            Direction.Southeast => new Coordinate(Row + nrOfSteps, Column + nrOfSteps),
+            Direction.East => new Coordinate(Row, Column + nrOfSteps),
+            Direction.Northeast => new Coordinate(Row - nrOfSteps, Column + nrOfSteps),
             _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
         };
     }
@@ -57,17 +57,17 @@ public readonly record struct Coordinate(int Row, int Column)
     /// </summary>
     public IEnumerable<Coordinate> GetAllAdjacentCoordinates()
     {
-        return DirectionUtils.GetAllDirections().Select(Step).ToList();
+        var thisCoordinate = this;
+        
+        return DirectionUtils
+            .GetAllDirections()
+            .Select(direction => thisCoordinate.Step(direction))
+            .ToList();
     }
 
     public Coordinate Add(Coordinate other)
     {
         return new Coordinate(Row: Row + other.Row, Column: Column + other.Column);
-    }
-
-    public Coordinate AddRows(int rowsToAdd)
-    {
-        return this with { Row = Row + rowsToAdd };
     }
 
     public Coordinate SetColumn(int updatedColumn)

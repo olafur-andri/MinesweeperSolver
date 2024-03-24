@@ -22,9 +22,10 @@ public class ExtendedBoard
     public event Action? PlayerLost;
     
     private readonly Board _coreBoard; // The underlying core board
-
     private readonly bool[,] _tileIsFlagged;
     private readonly bool[,] _tileIsHypothesized;
+
+    private int _nrOfFlags;
 
     public ExtendedBoard(Board coreBoard)
     {
@@ -54,6 +55,17 @@ public class ExtendedBoard
         }
         
         var (row, column) = coordinate;
+
+        var tileWasFlagged = _tileIsFlagged[row, column];
+
+        if (tileWasFlagged)
+        {
+            _nrOfFlags -= 1;
+        }
+        else
+        {
+            _nrOfFlags += 1;
+        }
         
         _tileIsFlagged[row, column] = !_tileIsFlagged[row, column];
         
@@ -148,6 +160,16 @@ public class ExtendedBoard
     public int GetNrOfColumns()
     {
         return _coreBoard.GetNrOfColumns();
+    }
+
+    public int GetNrOfBombs()
+    {
+        return _coreBoard.GetNrOfBombs();
+    }
+
+    public int GetNrOfFlags()
+    {
+        return _nrOfFlags;
     }
 
     public bool CoordinateIsWithinGrid(Coordinate coordinate)

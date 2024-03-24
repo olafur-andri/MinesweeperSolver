@@ -165,7 +165,7 @@ public class DrawableBoard : IDrawable
 
         return new DrawUnit(
             Content: content,
-            LocalCoordinate: tileCoordinate.Add(new Coordinate(1, 1)),
+            LocalCoordinate: tileCoordinate.Step(Direction.Southeast),
             BackgroundColor: backgroundColor,
             ForegroundColor: foregroundColor);
     }

@@ -53,7 +53,7 @@ public class StartingScreen
         var topLeftCoordinate = minesweeperAsciiArt
             .GetBoundingBox()
             .BottomLeftCoordinate
-            .AddRows(1);
+            .Step(Direction.South);
         
         var options = new[]
         {

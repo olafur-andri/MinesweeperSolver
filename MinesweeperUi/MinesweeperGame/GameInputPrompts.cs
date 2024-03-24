@@ -17,6 +17,7 @@ public class GameInputPrompts : IDrawable
         const string spacing = "    ";
         
         _drawUnits = DrawUnit.FromString(
+            Coordinate.Zero,
             $"[WASD] Move                     {spacing}" +
             $"[Home] Start of row{spacing}" +
             $"[PageUp] Start of column{spacing}" +

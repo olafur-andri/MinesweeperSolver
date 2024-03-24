@@ -20,14 +20,16 @@ public class MinesweeperGameScreen
 
     public void Open()
     {
+        var gameStatusText = new GameStatusText(Coordinate.Zero, _extendedBoard);
+
         var drawableBoard = new DrawableBoard(
             _extendedBoard,
-            Coordinate.Zero,
+            gameStatusText.GetBoundingBox().BottomLeftCoordinate.Step(Direction.South, 2),
             _observableCursorCoordinate);
 
-        var gameInputPrompts =
-            new GameInputPrompts(drawableBoard.GetBoundingBox().BottomLeftCoordinate.AddRows(1));
+        var gameInputPrompts = ConstructGameInputPrompts(drawableBoard);
         
+        _drawer.AddDrawable(gameStatusText);
         _drawer.AddDrawable(drawableBoard);
         _drawer.AddDrawable(gameInputPrompts);
 
@@ -209,6 +211,14 @@ public class MinesweeperGameScreen
         {
             keyInfo = Console.ReadKey(intercept: true);
         }
+    }
+    
+    private static IDrawable ConstructGameInputPrompts(IDrawable drawableBoard)
+    {
+        var topLeftCoordinate =
+            drawableBoard.GetBoundingBox().BottomLeftCoordinate.Step(Direction.South, 2);
+        
+        return new GameInputPrompts(topLeftCoordinate);
     }
 
     private static bool ShiftWasPressed(ConsoleKeyInfo keyInfo)
