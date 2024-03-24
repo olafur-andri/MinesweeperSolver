@@ -72,14 +72,11 @@ public class ChoiceMenu : IDrawable
 
     private IReadOnlyList<DrawUnit> ConstructDrawUnits()
     {
-        return new[]
-        {
-            new DrawUnit(
-                Content: GetDrawUnitContent(),
-                LocalCoordinate: new Coordinate(0, 0),
-                BackgroundColor: null,
-                ForegroundColor: null)
-        };
+        return DrawUnit.FromString(
+            localTopLeftCoordinate: Coordinate.Zero,
+            @string: GetDrawUnitContent(),
+            backgroundColor: null,
+            foregroundColor: null);
     }
 
     private string GetDrawUnitContent()
