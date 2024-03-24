@@ -30,7 +30,12 @@ public class GameInputPrompts : IDrawable
             backgroundColor: null,
             foregroundColor: null);
     }
-    
+
+    public string GetId()
+    {
+        return nameof(GameInputPrompts);
+    }
+
     public IEnumerable<DrawUnit> GetAllDrawUnits()
     {
         return _drawUnits;

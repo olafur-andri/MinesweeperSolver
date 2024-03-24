@@ -30,6 +30,11 @@ public class DrawableBoard : IDrawable
         UnregisterAllCallbacks();
     }
 
+    public string GetId()
+    {
+        return nameof(DrawableBoard);
+    }
+
     public IEnumerable<DrawUnit> GetAllDrawUnits()
     {
         return GetDrawUnitsForBorder().Concat(GetDrawUnitsForTiles());

@@ -28,18 +28,15 @@ public class MinesweeperGameScreen
         var gameInputPrompts =
             new GameInputPrompts(drawableBoard.GetBoundingBox().BottomLeftCoordinate.AddRows(1));
         
-        _drawer.AddDrawableToWatch(drawableBoard);
-        
-        Console.Clear();
-        _drawer.Draw(drawableBoard);
-        _drawer.Draw(gameInputPrompts);
-        
+        _drawer.AddDrawable(drawableBoard);
+        _drawer.AddDrawable(gameInputPrompts);
+
         while (!_shouldCloseScreen)
         {
             WaitForValidKeyPressAndReact();
         }
 
-        _drawer.RemoveDrawableFromWatch(drawableBoard);
+        _drawer.RemoveAllDrawables();
     }
 
     private void OnWasdPressed(ConsoleKeyInfo keyInfo)

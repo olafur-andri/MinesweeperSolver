@@ -24,13 +24,15 @@ public class ChoiceMenu : IDrawable
     }
 
     public event IDrawable.DrawUnitUpdatedHandler? DrawUnitUpdated;
-    
+
+    private readonly string _id;
     private readonly IReadOnlyList<Option> _options;
     private readonly IReadOnlyList<DrawUnit> _drawUnits;
     private readonly Coordinate _topLeftCoordinate;
 
-    public ChoiceMenu(IReadOnlyList<Option> options, Coordinate topLeftCoordinate)
+    public ChoiceMenu(string id, IReadOnlyList<Option> options, Coordinate topLeftCoordinate)
     {
+        _id = id;
         _options = options;
         _topLeftCoordinate = topLeftCoordinate;
         _drawUnits = ConstructDrawUnits();
@@ -52,7 +54,12 @@ public class ChoiceMenu : IDrawable
 
         return correspondingOption != null;
     }
-    
+
+    public string GetId()
+    {
+        return _id;
+    }
+
     public IEnumerable<DrawUnit> GetAllDrawUnits()
     {
         return _drawUnits;

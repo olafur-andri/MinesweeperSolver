@@ -73,7 +73,7 @@ public class StartingScreen
                 callback: OnQuitChosen)
         };
         
-        return new ChoiceMenu(options, topLeftCoordinate);
+        return new ChoiceMenu("StartingScreenChoiceMenu", options, topLeftCoordinate);
     }
     
     private void OnRegularMinesweeperGameChosen()
@@ -91,16 +91,17 @@ public class StartingScreen
         
         var minesweeperGameScreen = new MinesweeperGameScreen(board);
         
+        _drawer.RemoveAllDrawables();
+        
         minesweeperGameScreen.Open();
         
-        Console.Clear();
         DrawAllDrawables();
     }
 
     private void DrawAllDrawables()
     {
-        _drawer.Draw(_minesweeperAsciiArt);
-        _drawer.Draw(_mainChoiceMenu);
+        _drawer.AddDrawable(_minesweeperAsciiArt);
+        _drawer.AddDrawable(_mainChoiceMenu);
     }
 
     private static void OnSomethingElseChosen()

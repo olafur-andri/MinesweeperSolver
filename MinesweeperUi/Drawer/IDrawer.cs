@@ -9,18 +9,23 @@ namespace MinesweeperUi.Drawer;
 public interface IDrawer
 {
     /// <summary>
-    /// Make sure updates on the given <paramref name="drawable"/> are noticed by this drawer. This
-    /// is unnecessary for static <see cref="IDrawable"/>s
+    /// Adds the given <paramref name="drawable"/> to this drawer. This results in the immediate
+    /// drawing of the given <paramref name="drawable"/> and any changes reported later on by it
+    /// will also be drawn
     /// </summary>
-    void AddDrawableToWatch(IDrawable drawable);
+    void AddDrawable(IDrawable drawable);
 
     /// <summary>
-    /// Make this drawer stop listening to updates from the given <paramref name="drawable"/>
+    /// Removes the given <paramref name="drawable"/> from this drawer. Results in the immediate
+    /// "clearing" of the given <paramref name="drawable"/> and any changes reported by it will no
+    /// longer be drawn
     /// </summary>
-    void RemoveDrawableFromWatch(IDrawable drawable);
+    void RemoveDrawable(IDrawable drawable);
 
     /// <summary>
-    /// Draws all of the <see cref="DrawUnit"/>s reported by the given <paramref name="drawable"/>
+    /// Removes all drawables that had been previously added to this drawer. Results in the
+    /// immediate clearing of all said drawables, any changes reported by any of them are also no
+    /// longer drawn
     /// </summary>
-    void Draw(IDrawable drawable);
+    void RemoveAllDrawables();
 }

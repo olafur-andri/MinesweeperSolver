@@ -25,7 +25,12 @@ public class MinesweeperAsciiArt : IDrawable
     {
         _topLeftCoordinate = topLeftCoordinate;
     }
-    
+
+    public string GetId()
+    {
+        return nameof(MinesweeperAsciiArt);
+    }
+
     public IEnumerable<DrawUnit> GetAllDrawUnits()
     {
         return _drawUnits;
@@ -38,6 +43,10 @@ public class MinesweeperAsciiArt : IDrawable
     
     private static IReadOnlyList<DrawUnit> ConstructDrawUnits()
     {
-        return DrawUnit.FromString(AsciiArtString, null, null);
+        return DrawUnit.FromString(
+            Coordinate.Zero,
+            AsciiArtString,
+            null,
+            null);
     }
 }

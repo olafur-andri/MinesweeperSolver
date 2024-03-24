@@ -1,4 +1,5 @@
-﻿using MinesweeperUi.Drawable;
+﻿using System.Diagnostics;
+using MinesweeperUi.Drawable;
 
 namespace MinesweeperUi.Drawer;
 
@@ -8,21 +9,47 @@ namespace MinesweeperUi.Drawer;
 /// </summary>
 public class EventDrivenDrawer : IDrawer
 {
-    public void AddDrawableToWatch(IDrawable drawable)
+    private readonly Dictionary<string, IDrawable> _drawables = new();
+    
+    public void AddDrawable(IDrawable drawable)
     {
-        drawable.DrawUnitUpdated += OnDrawUnitUpdated;
-    }
-
-    public void RemoveDrawableFromWatch(IDrawable drawable)
-    {
-        drawable.DrawUnitUpdated -= OnDrawUnitUpdated;
-    }
-
-    public void Draw(IDrawable drawable)
-    {
+        Debug.Assert(
+            !_drawables.ContainsKey(drawable.GetId()),
+            $"Cannot add drawable with ID '{drawable.GetId()}' to this drawer because a drawable with the same ID already exists on this drawer");
+        
+        _drawables[drawable.GetId()] = drawable;
+        
         foreach (var drawUnit in drawable.GetAllDrawUnits())
         {
             DrawDrawUnit(drawable, drawUnit);
+        }
+        
+        drawable.DrawUnitUpdated += OnDrawUnitUpdated;
+    }
+
+    public void RemoveDrawable(IDrawable drawable)
+    {
+        Debug.Assert(
+            _drawables.ContainsKey(drawable.GetId()),
+            $"Cannot remove drawable with ID '{drawable.GetId()}' from this drawer because it had never been added to this drawer");
+        
+        _drawables.Remove(drawable.GetId());
+        
+        foreach (var drawUnit in drawable.GetAllDrawUnits())
+        {
+            ClearDrawUnit(drawable, drawUnit);
+        }
+        
+        drawable.DrawUnitUpdated -= OnDrawUnitUpdated;
+    }
+
+    public void RemoveAllDrawables()
+    {
+        IReadOnlyCollection<string> allDrawableIds = _drawables.Keys.ToList();
+
+        foreach (var drawableId in allDrawableIds)
+        {
+            RemoveDrawable(_drawables[drawableId]);
         }
     }
     
@@ -31,9 +58,9 @@ public class EventDrivenDrawer : IDrawer
         DrawDrawUnit(sourceDrawable, updatedDrawUnit);
     }
 
-    private static void DrawDrawUnit(IDrawable drawable, DrawUnit drawUnit)
+    private static void DrawDrawUnit(IDrawable sourceDrawable, DrawUnit drawUnit)
     {
-        var (row, column) = drawable.GetTopLeftCoordinate().Add(drawUnit.LocalCoordinate);
+        var (row, column) = sourceDrawable.GetTopLeftCoordinate().Add(drawUnit.LocalCoordinate);
         
         Console.SetCursorPosition(top: row, left: column);
         
@@ -43,5 +70,16 @@ public class EventDrivenDrawer : IDrawer
         Console.Write(drawUnit.Content);
         
         Console.ResetColor();
+    }
+
+    private static void ClearDrawUnit(IDrawable sourceDrawable, DrawUnit drawUnit)
+    {
+        var clearDrawUnit = new DrawUnit(
+            Content: " ",
+            LocalCoordinate: drawUnit.LocalCoordinate,
+            BackgroundColor: null,
+            ForegroundColor: null);
+        
+        DrawDrawUnit(sourceDrawable, clearDrawUnit);
     }
 }
