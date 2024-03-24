@@ -8,21 +8,6 @@ namespace MinesweeperUi;
 /// </summary>
 public class ChoiceMenu : IDrawable
 {
-    /// <summary>Represents a single option in a <see cref="ChoiceMenu"/></summary>
-    public class Option
-    {
-        public readonly ConsoleKey Key;
-        public readonly string Explanation;
-        public readonly Action Callback;
-
-        public Option(ConsoleKey key, string explanation, Action callback)
-        {
-            Key = key;
-            Explanation = explanation;
-            Callback = callback;
-        }
-    }
-
     public event IDrawable.DrawUnitUpdatedHandler? DrawUnitUpdated;
 
     private readonly string _id;
@@ -85,5 +70,20 @@ public class ChoiceMenu : IDrawable
             .Select(option => $"[{ConsoleKeyUtils.GetKeyName(option.Key)}] {option.Explanation}");
 
         return string.Join(Environment.NewLine, lines) + Environment.NewLine;
+    }
+    
+    /// <summary>Represents a single option in a <see cref="ChoiceMenu"/></summary>
+    public class Option
+    {
+        public readonly ConsoleKey Key;
+        public readonly string Explanation;
+        public readonly Action Callback;
+
+        public Option(ConsoleKey key, string explanation, Action callback)
+        {
+            Key = key;
+            Explanation = explanation;
+            Callback = callback;
+        }
     }
 }
