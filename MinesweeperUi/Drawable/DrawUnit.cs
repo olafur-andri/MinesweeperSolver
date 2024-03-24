@@ -47,4 +47,17 @@ public record DrawUnit(
 
         return drawUnits;
     }
+
+    /// <summary>
+    /// Creates a "clear" version of this draw unit, i.e., a draw unit you can draw to erase this
+    /// draw unit
+    /// </summary>
+    public DrawUnit ToClear()
+    {
+        return new DrawUnit(
+            Content: " ",
+            LocalCoordinate: LocalCoordinate,
+            BackgroundColor: null,
+            ForegroundColor: null);
+    }
 }

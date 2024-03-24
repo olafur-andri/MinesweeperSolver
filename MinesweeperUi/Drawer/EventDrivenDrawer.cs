@@ -37,7 +37,7 @@ public class EventDrivenDrawer : IDrawer
         
         foreach (var drawUnit in drawable.GetAllDrawUnits())
         {
-            ClearDrawUnit(drawable, drawUnit);
+            DrawDrawUnit(drawable, drawUnit.ToClear());
         }
         
         drawable.DrawUnitUpdated -= OnDrawUnitUpdated;
@@ -70,16 +70,5 @@ public class EventDrivenDrawer : IDrawer
         Console.Write(drawUnit.Content);
         
         Console.ResetColor();
-    }
-
-    private static void ClearDrawUnit(IDrawable sourceDrawable, DrawUnit drawUnit)
-    {
-        var clearDrawUnit = new DrawUnit(
-            Content: " ",
-            LocalCoordinate: drawUnit.LocalCoordinate,
-            BackgroundColor: null,
-            ForegroundColor: null);
-        
-        DrawDrawUnit(sourceDrawable, clearDrawUnit);
     }
 }
