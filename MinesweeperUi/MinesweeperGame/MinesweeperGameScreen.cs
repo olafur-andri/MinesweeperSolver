@@ -7,31 +7,45 @@ namespace MinesweeperUi.MinesweeperGame;
 /// <summary>The screen to show when the player chooses to play a regular Minesweeper game</summary>
 public class MinesweeperGameScreen
 {
+    private static readonly IReadOnlyList<InputPrompts.Column> GameFinishedColumns =
+        new List<InputPrompts.Column>
+        {
+            new(new List<InputPrompts.Prompt>
+            {
+                new("Back", "Exit")
+            })
+        };
+    
     private readonly IDrawer _drawer = DrawerFactory.CreateDrawer();
     private readonly Observable<Coordinate> _observableCursorCoordinate = new(Coordinate.Zero);
     private readonly ExtendedBoard _extendedBoard;
+    private readonly IDrawable _gameStatusText;
+    private readonly IDrawable _drawableBoard;
+    private readonly InputPrompts _gameInputPrompts;
 
     private bool _shouldCloseScreen;
     
     public MinesweeperGameScreen(Board coreBoard)
     {
         _extendedBoard = new ExtendedBoard(coreBoard);
+        
+        _gameStatusText = new GameStatusText(Coordinate.Zero, _extendedBoard);
+        _drawableBoard = ConstructDrawableBoard(_gameStatusText);
+        _gameInputPrompts = ConstructGameInputPrompts(_drawableBoard);
+
+        RegisterAllCallbacks();
+    }
+
+    ~MinesweeperGameScreen()
+    {
+        UnregisterAllCallbacks();
     }
 
     public void Open()
     {
-        var gameStatusText = new GameStatusText(Coordinate.Zero, _extendedBoard);
-
-        var drawableBoard = new DrawableBoard(
-            _extendedBoard,
-            gameStatusText.GetBoundingBox().BottomLeftCoordinate.Step(Direction.South, 2),
-            _observableCursorCoordinate);
-
-        var gameInputPrompts = ConstructGameInputPrompts(drawableBoard);
-        
-        _drawer.AddDrawable(gameStatusText);
-        _drawer.AddDrawable(drawableBoard);
-        _drawer.AddDrawable(gameInputPrompts);
+        _drawer.AddDrawable(_gameStatusText);
+        _drawer.AddDrawable(_drawableBoard);
+        _drawer.AddDrawable(_gameInputPrompts);
 
         while (!_shouldCloseScreen)
         {
@@ -212,13 +226,70 @@ public class MinesweeperGameScreen
             keyInfo = Console.ReadKey(intercept: true);
         }
     }
+
+    private void OnPlayerWon()
+    {
+        _gameInputPrompts.UpdateColumns(GameFinishedColumns);
+    }
     
-    private static IDrawable ConstructGameInputPrompts(IDrawable drawableBoard)
+    private void OnPlayerLost()
+    {
+        _gameInputPrompts.UpdateColumns(GameFinishedColumns);
+    }
+
+    private void RegisterAllCallbacks()
+    {
+        _extendedBoard.PlayerWon += OnPlayerWon;
+        _extendedBoard.PlayerLost += OnPlayerLost;
+    }
+
+    private void UnregisterAllCallbacks()
+    {
+        _extendedBoard.PlayerWon -= OnPlayerWon;
+        _extendedBoard.PlayerLost -= OnPlayerLost;
+    }
+    
+    private IDrawable ConstructDrawableBoard(IDrawable gameStatusText)
+    {
+        return new DrawableBoard(
+            _extendedBoard,
+            gameStatusText.GetBoundingBox().BottomLeftCoordinate.Step(Direction.South, 2),
+            _observableCursorCoordinate);
+    }
+    
+    private static InputPrompts ConstructGameInputPrompts(IDrawable drawableBoard)
     {
         var topLeftCoordinate =
             drawableBoard.GetBoundingBox().BottomLeftCoordinate.Step(Direction.South, 2);
+
+        IReadOnlyList<InputPrompts.Column> columns = new List<InputPrompts.Column>
+        {
+            new(new List<InputPrompts.Prompt>
+            {
+                new("WASD", "Move"),
+                new("Shift+WASD", "Jump to hidden tile")
+            }),
+            
+            new(new List<InputPrompts.Prompt>
+            {
+                new("Home", "Start of row"),
+                new("End", "End of row")
+            }),
+            
+            new(new List<InputPrompts.Prompt>
+            {
+                new("Space", "Reveal"),
+                new("E", "Flag")
+            }),
+            
+            new(new List<InputPrompts.Prompt>
+            {
+                new("Q", "Hypothesize"),
+                new("Back", "Exit")
+            })
+        };
         
-        return new GameInputPrompts(topLeftCoordinate);
+        return new InputPrompts("MinesweeperGameInputPrompts", topLeftCoordinate, columns);
     }
 
     private static bool ShiftWasPressed(ConsoleKeyInfo keyInfo)
