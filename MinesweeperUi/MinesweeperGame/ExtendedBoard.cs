@@ -34,6 +34,13 @@ public class ExtendedBoard
         var (nrOfRows, nrOfColumns) = (coreBoard.GetNrOfRows(), coreBoard.GetNrOfColumns());
         _tileIsFlagged = new bool[nrOfRows, nrOfColumns];
         _tileIsHypothesized = new bool[nrOfRows, nrOfColumns];
+
+        RegisterAllCallbacks();
+    }
+
+    ~ExtendedBoard()
+    {
+        UnregisterAllCallbacks();
     }
 
     public ExtendedTileInfo GetExtendedTileInfo(Coordinate coordinate)
@@ -183,5 +190,31 @@ public class ExtendedBoard
             .GetAdjacentCoordinatesWithinGrid(coordinate)
             .Count(currentCoordinate =>
                 _tileIsFlagged[currentCoordinate.Row, currentCoordinate.Column]);
+    }
+
+    private void OnPlayerWon()
+    {
+        // ensure all bomb tiles are flagged
+        foreach (var bombCoordinate in _coreBoard.GetBombCoordinates())
+        {
+            var tileInfo = GetExtendedTileInfo(bombCoordinate);
+
+            if (tileInfo.IsFlagged())
+            {
+                continue;
+            }
+            
+            ToggleFlag(bombCoordinate);
+        }
+    }
+
+    private void RegisterAllCallbacks()
+    {
+        PlayerWon += OnPlayerWon;
+    }
+
+    private void UnregisterAllCallbacks()
+    {
+        PlayerWon -= OnPlayerWon;
     }
 }

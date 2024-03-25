@@ -10,7 +10,7 @@ public class Board
 {
     private readonly int _nrOfRows;
     private readonly int _nrOfColumns;
-    private readonly int _nrOfBombs;
+    private readonly IReadOnlyList<Coordinate> _bombCoordinates;
     private readonly Tile[,] _tileGrid;
 
     private int _nrOfSafeHiddenTilesLeft;
@@ -26,8 +26,8 @@ public class Board
         
         _nrOfRows = nrOfRows;
         _nrOfColumns = nrOfColumns;
-        _nrOfBombs = bombCoordinates.Count;
-        _nrOfSafeHiddenTilesLeft = nrOfRows * nrOfColumns - _nrOfBombs;
+        _bombCoordinates = bombCoordinates;
+        _nrOfSafeHiddenTilesLeft = nrOfRows * nrOfColumns - GetNrOfBombs();
 
         _tileGrid = ConstructTileGrid(bombCoordinates);
 
@@ -66,12 +66,17 @@ public class Board
 
     public int GetNrOfBombs()
     {
-        return _nrOfBombs;
+        return _bombCoordinates.Count;
     }
 
     public ITileInfo GetTileInfo(Coordinate coordinate)
     {
         return _tileGrid[coordinate.Row, coordinate.Column];
+    }
+
+    public IEnumerable<Coordinate> GetBombCoordinates()
+    {
+        return _bombCoordinates;
     }
 
     public BoardRevealStatus RevealTile(Coordinate coordinate)
